@@ -1,63 +1,92 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class SkillsSection extends StatelessWidget {
   const SkillsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-      color: Colors.grey[50],
-      padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
-      child: Column(
-        children: [
-          Text(
-            'Skills',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 40),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return Wrap(
-                spacing: 20,
-                runSpacing: 20,
-                alignment: WrapAlignment.center,
-                children: [
-                  _buildSkillCategory(
-                    context,
-                    'Frontend Development',
-                    frontendSkills,
-                    Icons.desktop_windows,
-                    Colors.blue,
-                  ),
-                  _buildSkillCategory(
-                    context,
-                    'Backend Development',
-                    backendSkills,
-                    Icons.storage,
-                    Colors.green,
-                  ),
-                  _buildSkillCategory(
-                    context,
-                    'Mobile Development',
-                    mobileSkills,
-                    Icons.mobile_friendly,
-                    Colors.orange,
-                  ),
-                  _buildSkillCategory(
-                    context,
-                    'Tools & Others',
-                    toolsSkills,
-                    Icons.build,
-                    Colors.purple,
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.grey[900]!,
+            Colors.grey[850]!,
+            Colors.grey[800]!,
+          ],
+        ),
       ),
-    ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
+        child: Column(
+          children: [
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.white, Colors.white70],
+              ).createShader(bounds),
+              child: Text(
+                'Skills & Expertise',
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ).animate().fadeIn().slideY(
+              begin: -0.2,
+              curve: Curves.easeOut,
+            ),
+            const SizedBox(height: 40),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    _buildSkillCategory(
+                      context,
+                      'Frontend Development',
+                      frontendSkills,
+                      Icons.desktop_windows,
+                      const Color(0xFF64B5F6),
+                    ),
+                    _buildSkillCategory(
+                      context,
+                      'Backend Development',
+                      backendSkills,
+                      Icons.storage,
+                      const Color(0xFF81C784),
+                    ),
+                    _buildSkillCategory(
+                      context,
+                      'Mobile Development',
+                      mobileSkills,
+                      Icons.mobile_friendly,
+                      const Color(0xFFFFB74D),
+                    ),
+                    _buildSkillCategory(
+                      context,
+                      'Tools & Others',
+                      toolsSkills,
+                      Icons.build,
+                      const Color(0xFFBA68C8),
+                    ),
+                  ].asMap().entries.map((entry) {
+                    return entry.value.animate(
+                      delay: (entry.key * 200).milliseconds,
+                    ).fadeIn().slideX(
+                      begin: entry.key.isEven ? -0.2 : 0.2,
+                      curve: Curves.easeOut,
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -69,30 +98,53 @@ class SkillsSection extends StatelessWidget {
     Color color,
   ) {
     return Container(
-      width: 300,
-      padding: const EdgeInsets.all(20),
+      width: 320,
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white10,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+            color: color.withOpacity(0.1),
+            spreadRadius: 5,
+            blurRadius: 20,
           ),
         ],
       ),
       child: Column(
         children: [
-          Icon(icon, size: 40, color: color),
-          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Icon(
+              icon,
+              size: 40,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 16),
           Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 20),
-          ...skills.map((skill) => SkillItem(skill: skill)),
+          const SizedBox(height: 24),
+          ...skills.asMap().entries.map((entry) {
+            return SkillItem(
+              skill: entry.value,
+              color: color,
+              delay: entry.key * 200,
+            );
+          }),
         ],
       ),
     );
@@ -101,8 +153,15 @@ class SkillsSection extends StatelessWidget {
 
 class SkillItem extends StatelessWidget {
   final Skill skill;
+  final Color color;
+  final int delay;
 
-  const SkillItem({super.key, required this.skill});
+  const SkillItem({
+    super.key,
+    required this.skill,
+    required this.color,
+    required this.delay,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -116,28 +175,60 @@ class SkillItem extends StatelessWidget {
             children: [
               Text(
                 skill.name,
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
               ),
               Text(
                 '${(skill.proficiency * 100).toInt()}%',
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: color,
                   fontSize: 14,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: skill.proficiency,
-            backgroundColor: Colors.grey[200],
-            valueColor: AlwaysStoppedAnimation<Color>(
-              skill.proficiency > 0.8
-                  ? Colors.green
-                  : skill.proficiency > 0.6
-                      ? Colors.blue
-                      : Colors.orange,
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  Container(
+                    height: 8,
+                    width: constraints.maxWidth,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[800],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 1500),
+                    curve: Curves.easeOut,
+                    height: 8,
+                    width: constraints.maxWidth * skill.proficiency,
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.5),
+                          blurRadius: 6,
+                          spreadRadius: -1,
+                        ),
+                      ],
+                    ),
+                  ).animate(
+                    delay: delay.milliseconds,
+                  ).slideX(
+                    begin: -1,
+                    duration: const Duration(milliseconds: 1500),
+                    curve: Curves.easeOut,
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),

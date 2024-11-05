@@ -1,147 +1,220 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ProjectsSection extends StatelessWidget {
   const ProjectsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        children: [
-          Text(
-            'My Projects',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 40),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: constraints.maxWidth > 1000 ? 3 : 
-                                constraints.maxWidth > 600 ? 2 : 1,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  childAspectRatio: 1.2,
-                ),
-                itemCount: projects.length,
-                itemBuilder: (context, index) => ProjectCard(
-                  project: projects[index],
-                ),
-              );
-            },
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.grey[900]!,
+            Colors.grey[850]!,
+            Colors.grey[800]!,
+          ],
+        ),
       ),
-    ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
+        child: Column(
+          children: [
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.white, Colors.white70],
+              ).createShader(bounds),
+              child: Text(
+                'Featured Projects',
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ).animate().fadeIn().slideY(begin: -0.2),
+            const SizedBox(height: 40),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: constraints.maxWidth > 1000 ? 3 : 
+                                  constraints.maxWidth > 600 ? 2 : 1,
+                    crossAxisSpacing: 20,
+                    mainAxisSpacing: 20,
+                    childAspectRatio: 0.8,
+                  ),
+                  itemCount: projects.length,
+                  itemBuilder: (context, index) => ProjectCard(
+                    project: projects[index],
+                    index: index,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-class ProjectCard extends StatelessWidget {
+class ProjectCard extends StatefulWidget {
   final Project project;
+  final int index;
 
   const ProjectCard({
     super.key,
     required this.project,
+    required this.index,
   });
 
   @override
+  State<ProjectCard> createState() => _ProjectCardState();
+}
+
+class _ProjectCardState extends State<ProjectCard> {
+  bool isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(4),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(4),
-                ),
-                child: Image.asset(
-                  project.imageUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 40,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    );
-                  },
-                  frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                    if (wasSynchronouslyLoaded) return child;
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: frame != null
-                          ? child
-                          : Container(
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            ),
-                    );
-                  },
-                ),
-              ),
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovered = true),
+      onExit: (_) => setState(() => isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        transform: Matrix4.identity()
+          ..translate(0.0, isHovered ? -10.0 : 0.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white10,
+              width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withOpacity(isHovered ? 0.2 : 0.1),
+                spreadRadius: isHovered ? 8 : 2,
+                blurRadius: isHovered ? 24 : 12,
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  project.title,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  project.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    if (project.githubUrl != null)
-                      IconButton(
-                        icon: const Icon(Icons.code),
-                        onPressed: () {
-                          // Handle GitHub link tap
-                          _showLinkDialog(context, 'GitHub', project.githubUrl!);
+                Expanded(
+                  flex: 3,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        widget.project.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[800],
+                            child: const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                size: 40,
+                                color: Colors.white30,
+                              ),
+                            ),
+                          );
                         },
-                        tooltip: 'View Code',
                       ),
-                    if (project.liveUrl != null)
-                      IconButton(
-                        icon: const Icon(Icons.launch),
-                        onPressed: () {
-                          // Handle Live Demo link tap
-                          _showLinkDialog(context, 'Live Demo', project.liveUrl!);
-                        },
-                        tooltip: 'Live Demo',
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity: isHovered ? 1.0 : 0.0,
+                        child: Container(
+                          color: Colors.black.withOpacity(0.8),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (widget.project.githubUrl != null)
+                                _buildActionButton(
+                                  'View Code',
+                                  Icons.code,
+                                  () => _showLinkDialog(context, 'GitHub', widget.project.githubUrl!),
+                                ),
+                              if (widget.project.liveUrl != null) ...[
+                                const SizedBox(height: 12),
+                                _buildActionButton(
+                                  'Live Demo',
+                                  Icons.launch,
+                                  () => _showLinkDialog(context, 'Live Demo', widget.project.liveUrl!),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ),
-                  ],
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.project.title,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.project.description,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.white70,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
+          ),
+        ),
+      ).animate(
+        delay: (widget.index * 100).milliseconds,
+      ).fadeIn().slideY(begin: 0.2),
+    );
+  }
+
+  Widget _buildActionButton(String label, IconData icon, VoidCallback onPressed) {
+    return MaterialButton(
+      onPressed: onPressed,
+      color: Colors.blue.withOpacity(0.2),
+      hoverColor: Colors.blue.withOpacity(0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+        side: const BorderSide(color: Colors.blue, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white),
           ),
         ],
       ),
@@ -153,14 +226,36 @@ class ProjectCard extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Open $title'),
+          backgroundColor: Colors.grey[900],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(color: Colors.white10),
+          ),
+          title: Text(
+            'Open $title',
+            style: const TextStyle(color: Colors.white),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Link:'),
+              const Text(
+                'Link:',
+                style: TextStyle(color: Colors.white70),
+              ),
               const SizedBox(height: 8),
-              SelectableText(url),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: SelectableText(
+                  url,
+                  style: const TextStyle(color: Colors.blue, fontSize: 14),
+                ),
+              ),
             ],
           ),
           actions: [
