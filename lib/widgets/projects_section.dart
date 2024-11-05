@@ -12,9 +12,9 @@ class ProjectsSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.grey[900]!,
-            Colors.grey[850]!,
-            Colors.grey[800]!,
+            Theme.of(context).colorScheme.background,
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).colorScheme.surface,
           ],
         ),
       ),
@@ -22,16 +22,10 @@ class ProjectsSection extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
         child: Column(
           children: [
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Colors.white, Colors.white70],
-              ).createShader(bounds),
-              child: Text(
-                'Featured Projects',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            Text(
+              'Featured Projects',
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn().slideY(begin: -0.2),
             const SizedBox(height: 40),
@@ -81,6 +75,8 @@ class _ProjectCardState extends State<ProjectCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return MouseRegion(
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
@@ -90,15 +86,15 @@ class _ProjectCardState extends State<ProjectCard> {
           ..translate(0.0, isHovered ? -10.0 : 0.0),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.grey[900],
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white10,
+              color: isDark ? Colors.white10 : Colors.black12,
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.blue.withOpacity(isHovered ? 0.2 : 0.1),
+                color: Theme.of(context).primaryColor.withOpacity(isHovered ? 0.2 : 0.1),
                 spreadRadius: isHovered ? 8 : 2,
                 blurRadius: isHovered ? 24 : 12,
               ),
@@ -119,12 +115,12 @@ class _ProjectCardState extends State<ProjectCard> {
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
-                            color: Colors.grey[800],
-                            child: const Center(
+                            color: Theme.of(context).colorScheme.surface,
+                            child: Center(
                               child: Icon(
                                 Icons.image_not_supported,
                                 size: 40,
-                                color: Colors.white30,
+                                color: Theme.of(context).iconTheme.color?.withOpacity(0.3),
                               ),
                             ),
                           );
@@ -134,13 +130,14 @@ class _ProjectCardState extends State<ProjectCard> {
                         duration: const Duration(milliseconds: 200),
                         opacity: isHovered ? 1.0 : 0.0,
                         child: Container(
-                          color: Colors.black.withOpacity(0.8),
+                          color: Theme.of(context).colorScheme.background.withOpacity(0.9),
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               if (widget.project.githubUrl != null)
                                 _buildActionButton(
+                                  context,
                                   'View Code',
                                   Icons.code,
                                   () => _showLinkDialog(context, 'GitHub', widget.project.githubUrl!),
@@ -148,6 +145,7 @@ class _ProjectCardState extends State<ProjectCard> {
                               if (widget.project.liveUrl != null) ...[
                                 const SizedBox(height: 12),
                                 _buildActionButton(
+                                  context,
                                   'Live Demo',
                                   Icons.launch,
                                   () => _showLinkDialog(context, 'Live Demo', widget.project.liveUrl!),
@@ -170,7 +168,6 @@ class _ProjectCardState extends State<ProjectCard> {
                         Text(
                           widget.project.title,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -180,7 +177,6 @@ class _ProjectCardState extends State<ProjectCard> {
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white70,
                             height: 1.5,
                           ),
                         ),
@@ -198,23 +194,37 @@ class _ProjectCardState extends State<ProjectCard> {
     );
   }
 
-  Widget _buildActionButton(String label, IconData icon, VoidCallback onPressed) {
+  Widget _buildActionButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onPressed,
+  ) {
     return MaterialButton(
       onPressed: onPressed,
-      color: Colors.blue.withOpacity(0.2),
-      hoverColor: Colors.blue.withOpacity(0.3),
+      color: Theme.of(context).primaryColor.withOpacity(0.2),
+      hoverColor: Theme.of(context).primaryColor.withOpacity(0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
-        side: const BorderSide(color: Colors.blue, width: 1),
+        side: BorderSide(
+          color: Theme.of(context).primaryColor,
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.white, size: 20),
+          Icon(
+            icon,
+            color: Theme.of(context).primaryColor,
+            size: 20,
+          ),
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+            ),
           ),
         ],
       ),
@@ -222,38 +232,47 @@ class _ProjectCardState extends State<ProjectCard> {
   }
 
   void _showLinkDialog(BuildContext context, String title, String url) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.grey[900],
+          backgroundColor: Theme.of(context).colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
-            side: const BorderSide(color: Colors.white10),
+            side: BorderSide(
+              color: isDark ? Colors.white10 : Colors.black12,
+            ),
           ),
           title: Text(
             'Open $title',
-            style: const TextStyle(color: Colors.white),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Link:',
-                style: TextStyle(color: Colors.white70),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[850],
+                  color: Theme.of(context).colorScheme.background,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white10),
+                  border: Border.all(
+                    color: isDark ? Colors.white10 : Colors.black12,
+                  ),
                 ),
                 child: SelectableText(
                   url,
-                  style: const TextStyle(color: Colors.blue, fontSize: 14),
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],

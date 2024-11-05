@@ -6,6 +6,10 @@ class IntroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
     return Container(
       height: MediaQuery.of(context).size.height,
       width: double.infinity,
@@ -14,27 +18,24 @@ class IntroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.grey[900]!,
-            Colors.grey[850]!,
-            Colors.grey[800]!,
+            Theme.of(context).colorScheme.background,
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).colorScheme.surface,
           ],
         ),
       ),
       child: Stack(
         children: [
-          // Animated background particles (optional)
           Positioned.fill(
             child: CustomPaint(
               painter: ParticlesPainter(),
             ),
           ),
           
-          // Main content
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Profile image with animation
                 TweenAnimationBuilder(
                   duration: const Duration(seconds: 1),
                   tween: Tween<double>(begin: 0, end: 1),
@@ -46,12 +47,12 @@ class IntroSection extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white,
+                            color: primaryColor,
                             width: 3,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.3),
+                              color: primaryColor.withOpacity(0.3),
                               blurRadius: 20,
                               spreadRadius: 5,
                             ),
@@ -68,26 +69,18 @@ class IntroSection extends StatelessWidget {
                 
                 const SizedBox(height: 30),
                 
-                // Animated name
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [Colors.white, Colors.white70],
-                  ).createShader(bounds),
-                  child: Text(
-                    'John Doe',
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  'John Doe',
+                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 
                 const SizedBox(height: 20),
                 
-                // Animated roles
                 DefaultTextStyle(
                   style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                    color: Colors.white70,
+                    color: textColor?.withOpacity(0.7),
                     fontWeight: FontWeight.w300,
                   ),
                   child: AnimatedTextKit(
@@ -102,23 +95,23 @@ class IntroSection extends StatelessWidget {
                 
                 const SizedBox(height: 40),
                 
-                // Description with gradient container
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 24),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(15),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
+                      color: isDark 
+                          ? Colors.white.withOpacity(0.2)
+                          : Colors.black.withOpacity(0.1),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Passionate Flutter developer crafting beautiful and functional mobile experiences. '
                     'Transforming ideas into elegant solutions with clean code and creative designs.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: 18,
                       height: 1.5,
                     ),
@@ -127,13 +120,12 @@ class IntroSection extends StatelessWidget {
                 
                 const SizedBox(height: 40),
                 
-                // Social links
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildSocialButton(Icons.person, 'GitHub'),
-                    _buildSocialButton(Icons.work, 'LinkedIn'),
-                    _buildSocialButton(Icons.mail, 'Email'),
+                    _buildSocialButton(context, Icons.person, 'GitHub'),
+                    _buildSocialButton(context, Icons.work, 'LinkedIn'),
+                    _buildSocialButton(context, Icons.mail, 'Email'),
                   ],
                 ),
               ],
@@ -144,7 +136,9 @@ class IntroSection extends StatelessWidget {
     );
   }
 
-  Widget _buildSocialButton(IconData icon, String label) {
+  Widget _buildSocialButton(BuildContext context, IconData icon, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: MouseRegion(
@@ -152,20 +146,27 @@ class IntroSection extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: isDark 
+                  ? Colors.white.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.1),
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: Colors.white),
+              Icon(
+                icon,
+                color: Theme.of(context).iconTheme.color,
+              ),
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
               ),
             ],
           ),
@@ -173,11 +174,8 @@ class IntroSection extends StatelessWidget {
       ),
     );
   }
-
-  
 }
 
-// Particle painter for animated background
 class ParticlesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

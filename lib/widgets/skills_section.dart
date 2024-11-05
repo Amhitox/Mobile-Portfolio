@@ -12,9 +12,9 @@ class SkillsSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.grey[900]!,
-            Colors.grey[850]!,
-            Colors.grey[800]!,
+            Theme.of(context).colorScheme.background,
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).colorScheme.surface,
           ],
         ),
       ),
@@ -22,16 +22,10 @@ class SkillsSection extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
         child: Column(
           children: [
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Colors.white, Colors.white70],
-              ).createShader(bounds),
-              child: Text(
-                'Skills & Expertise',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            Text(
+              'Skills & Expertise',
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn().slideY(
               begin: -0.2,
@@ -50,28 +44,28 @@ class SkillsSection extends StatelessWidget {
                       'Frontend Development',
                       frontendSkills,
                       Icons.desktop_windows,
-                      const Color(0xFF64B5F6),
+                      Theme.of(context).colorScheme.primary,
                     ),
                     _buildSkillCategory(
                       context,
                       'Backend Development',
                       backendSkills,
                       Icons.storage,
-                      const Color(0xFF81C784),
+                      Colors.green,
                     ),
                     _buildSkillCategory(
                       context,
                       'Mobile Development',
                       mobileSkills,
                       Icons.mobile_friendly,
-                      const Color(0xFFFFB74D),
+                      Colors.orange,
                     ),
                     _buildSkillCategory(
                       context,
                       'Tools & Others',
                       toolsSkills,
                       Icons.build,
-                      const Color(0xFFBA68C8),
+                      Colors.purple,
                     ),
                   ].asMap().entries.map((entry) {
                     return entry.value.animate(
@@ -97,14 +91,16 @@ class SkillsSection extends StatelessWidget {
     IconData icon,
     Color color,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       width: 320,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white10,
+          color: isDark ? Colors.white10 : Colors.black12,
           width: 1,
         ),
         boxShadow: [
@@ -133,7 +129,6 @@ class SkillsSection extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -165,6 +160,8 @@ class SkillItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -175,9 +172,8 @@ class SkillItem extends StatelessWidget {
             children: [
               Text(
                 skill.name,
-                style: const TextStyle(
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontSize: 16,
-                  color: Colors.white70,
                 ),
               ),
               Text(

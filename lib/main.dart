@@ -1,28 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 import 'package:portfolio/widgets/contact_section.dart';
 import 'package:portfolio/widgets/intro_section.dart';
 import 'package:portfolio/widgets/projects_section.dart';
 import 'package:portfolio/widgets/skills_section.dart';
 
+import 'widgets/theme_toggle.dart';
+import 'package:flutter/services.dart';
 
 void main() {
-  runApp(const PortfolioApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ),
+  );
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
+  );
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
-class PortfolioApp extends StatelessWidget {
-  const PortfolioApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Portfolio',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Roboto',
-        useMaterial3: true,
-      ),
-      home: const PortfolioHome(),
-      debugShowCheckedModeBanner: false,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'Your Portfolio',
+          theme: themeProvider.currentTheme,
+          home: const PortfolioHome(),
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }
@@ -87,6 +110,7 @@ class _PortfolioHomeState extends State<PortfolioHome> {
               ),
             ),
           ),
+          const ThemeToggle(), 
         ],
       ),
     );

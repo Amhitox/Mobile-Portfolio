@@ -25,15 +25,17 @@ class _ContactSectionState extends State<ContactSection> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.grey[900]!,
-            Colors.grey[850]!,
-            Colors.grey[800]!,
+            Theme.of(context).colorScheme.background,
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).colorScheme.surface,
           ],
         ),
       ),
@@ -41,16 +43,10 @@ class _ContactSectionState extends State<ContactSection> {
         padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
         child: Column(
           children: [
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Colors.white, Colors.white70],
-              ).createShader(bounds),
-              child: Text(
-                'Get In Touch',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            Text(
+              'Get In Touch',
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn().slideY(begin: -0.2),
             const SizedBox(height: 40),
@@ -60,12 +56,14 @@ class _ContactSectionState extends State<ContactSection> {
                   width: constraints.maxWidth > 800 ? 800 : constraints.maxWidth,
                   padding: const EdgeInsets.all(32.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[900],
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white10),
+                    border: Border.all(
+                      color: isDark ? Colors.white10 : Colors.black12,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
                         spreadRadius: 8,
                         blurRadius: 24,
                       ),
@@ -225,38 +223,51 @@ class _ContactSectionState extends State<ContactSection> {
   }
 
   void _showSocialDialog(BuildContext context, String platform, String link) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.grey[900],
+          backgroundColor: Theme.of(context).colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
-            side: const BorderSide(color: Colors.white10),
+            side: BorderSide(
+              color: isDark ? Colors.white10 : Colors.black12,
+            ),
           ),
           title: Text(
             platform,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: Theme.of(context).textTheme.titleLarge?.color,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Link:',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[850],
+                  color: Theme.of(context).colorScheme.background,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white10),
+                  border: Border.all(
+                    color: isDark ? Colors.white10 : Colors.black12,
+                  ),
                 ),
                 child: SelectableText(
                   link,
-                  style: const TextStyle(color: Colors.blue, fontSize: 14),
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],
@@ -298,6 +309,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Focus(
       onFocusChange: (hasFocus) => setState(() => _isFocused = hasFocus),
       child: TextFormField(
@@ -306,27 +319,39 @@ class _CustomTextFieldState extends State<CustomTextField> {
           labelText: widget.label,
           prefixIcon: Icon(
             widget.icon,
-            color: _isFocused ? Colors.blue : Colors.white54,
+            color: _isFocused 
+                ? Theme.of(context).primaryColor 
+                : Theme.of(context).iconTheme.color?.withOpacity(0.5),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: Colors.white10),
+            borderSide: BorderSide(
+              color: isDark ? Colors.white10 : Colors.black12,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: Colors.white10),
+            borderSide: BorderSide(
+              color: isDark ? Colors.white10 : Colors.black12,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: Colors.blue),
+            borderSide: BorderSide(
+              color: Theme.of(context).primaryColor,
+            ),
           ),
           filled: true,
-          fillColor: Colors.grey[850],
+          fillColor: Theme.of(context).colorScheme.surface,
           labelStyle: TextStyle(
-            color: _isFocused ? Colors.blue : Colors.white54,
+            color: _isFocused 
+                ? Theme.of(context).primaryColor 
+                : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
           ),
         ),
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        ),
         maxLines: widget.maxLines,
         validator: widget.validator,
       ),
@@ -368,7 +393,9 @@ class _SocialButtonState extends State<SocialButton> {
             icon: Icon(
               widget.icon,
               size: 28,
-              color: _isHovered ? Colors.blue : Colors.white70,
+              color: _isHovered 
+                  ? Theme.of(context).primaryColor 
+                  : Theme.of(context).iconTheme.color?.withOpacity(0.7),
             ),
             onPressed: widget.onPressed,
           ),
